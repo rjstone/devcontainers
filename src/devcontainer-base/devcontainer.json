@@ -1,0 +1,32 @@
+// for format details, see https://aka.ms/vscode-remote/devcontainer.json
+{
+	"name": "Ubuntu-Base",
+  "containerEnv": {
+    "JAVA_JDK_VERSION": "17",
+    "ALMOND_VERSION": "0.14.1",
+    "SCALA_VERSION": "2.13.1"
+  },
+	"build": {
+		"dockerfile": "./Dockerfile",
+    "context": ".",
+    "args": {
+      "VARIANT": "noble",
+      "LANG": "en_US.UTF-8",
+      "HOSTNAME": "ubuntu-base",
+      "USERNAME": "vscode"
+    }
+	},
+  "features": {
+  },
+  "customizations": {
+    // Configure properties specific to VS Code.
+    "vscode": {
+      "settings": {
+      },
+      // Add the IDs of extensions you want installed
+      "extensions": [
+      ]
+    }
+  },
+	"remoteUser": "vscode",
+}

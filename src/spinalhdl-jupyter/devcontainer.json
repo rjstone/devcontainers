@@ -1,0 +1,47 @@
+// for format details, see https://aka.ms/vscode-remote/devcontainer.json
+{
+	"name": "SpinalHDL-Jupyter",
+  "containerEnv": {
+    "JAVA_JDK_VERSION": "17",
+    "ALMOND_VERSION": "0.14.1",
+    "SCALA_VERSION": "2.13.1"
+  },
+	"build": {
+		"dockerfile": "./Dockerfile",
+    "context": ".",
+    "args": {
+      "LANG": "en_US.UTF-8",
+      "HOSTNAME": "SpinalHDL-container"
+    }
+	},
+  "features": {
+  },
+  "customizations": {
+    // Configure properties specific to VS Code.
+    "vscode": {
+      "settings": {
+        "jupyter.kernels.trusted": [
+          "/usr/share/jupyter/kernels"
+        ],
+        "jupyter.logKernelOutputSeparately": true,
+        "interactiveScala.interpreter": "/usr/local/bin/ammonite"
+      },
+      // Add the IDs of extensions you want installed
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-toolsai.jupyter",
+        "ms-toolsai.jupyter-keymap",
+        "ms-toolsai.jupyter-renderers",
+        "ms-toolsai.vscode-jupyter-cell-tags",
+        "sam-the-programmer.jupyter-theme",
+        "scala-lang.scala",
+        "scalameta.metals",
+        "scala-lang.scala-snippets",
+        "alssys.interactive-scala"
+      ]
+    }
+  },
+	"remoteUser": "vscode",
+  "postCreateCommand": "$COURSIER_INSTALL_DIR/ammonite $HOME/load-spinal.sc"
+}
