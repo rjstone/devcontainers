@@ -53,7 +53,7 @@ jobs:
       uses: devcontainers/ci@v0.2
       with:
         eventFilterForPush: "push"
-        subFolder: src/${{ env.IMAGE_NAME }}/.devcontainer
+        subFolder: src/${{ env.IMAGE_NAME }}
         imageName: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
         imageTag:  ${{ env.IMAGE_TAG }}
         push: always
