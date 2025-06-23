@@ -1,0 +1,67 @@
+name: Build Tagged Dev Container and Push Image
+
+on:
+  push:
+    tags:
+      - "*-*"
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: from-git-tag-see-below
+  IMAGE_TAG: from-git-tag-see-below
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+
+    steps:
+
+    - name: Get dev container image name from tag (prefix)
+      id: imgname
+      env:
+        TAGSTR: ${{ github.ref_name }}
+      run: echo "IMAGE_NAME=${TAGSTR%%-*}" >> $GITHUB_ENV
+      ### IMAGE_NAME: everything before first dash
+
+    - name: Get dev container image tag from tag (prefix)
+      id: imgtag
+      env:
+        TAGSTR: ${{ github.ref_name }}
+      run: echo "IMAGE_TAG=${TAGSTR#*-}" >> $GITHUB_ENV
+      ### IMAGE_TAG: greedy, everything after first -
+
+    - name: Checkout Repository
+      id: checkout
+      uses: actions/checkout@v4
+
+    - name: Login to GitHub Container Registry
+      id: logincr
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Pre-build dev container image
+      id: imgbuild
+      uses: devcontainers/ci@v0.2
+      with:
+        eventFilterForPush: "push"
+        subFolder: src/${{ env.IMAGE_NAME }}/.devcontainer
+        imageName: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+        imageTag:  ${{ env.IMAGE_TAG }}
+        push: always
+
+    - name: Generate artifact attestation
+      id: attest
+      uses: actions/attest-build-provenance@v2
+      with:
+        subject-name: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+        subject-digest: ${{ env.IMAGE_TAG }}
+        push-to-registry: true
