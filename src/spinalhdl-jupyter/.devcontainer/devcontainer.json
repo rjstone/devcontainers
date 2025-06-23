@@ -10,8 +10,8 @@
 		"dockerfile": "./Dockerfile",
     "context": ".",
     "args": {
-      "LANG": "en_US.UTF-8",
-      "HOSTNAME": "SpinalHDL-container"
+      "LANG": "${localEnv:LANG:C.UTF-8}",
+      "USERNAME": "vscode"
     }
 	},
   "features": {
@@ -43,5 +43,6 @@
     }
   },
 	"remoteUser": "vscode",
+  "runArgs": ["--name", "spinalhdl-jupyter"],
   "postCreateCommand": "$COURSIER_INSTALL_DIR/ammonite $HOME/load-spinal.sc"
 }
