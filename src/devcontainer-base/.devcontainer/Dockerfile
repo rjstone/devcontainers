@@ -64,3 +64,6 @@ LABEL description="Ubuntu Development Container Base" \
       author="rjstoneus@gmail.com" \
       maintainer="rjstoneus@gmail.com" \
       version="0.4.1"
+
+LABEL org.opencontainers.image.source="https://github.com/rjstone/devcontainers"
+LABEL org.opencontainers.image.description="This is similar to the official devcontainer base images, but is a little bit more stripped down. No zsh, etc, is provided, only things needed for installation of more software and basic interactive use."

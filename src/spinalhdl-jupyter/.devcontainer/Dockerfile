@@ -74,3 +74,6 @@ LABEL description="Development container for Scala + SpinalHDL + Jupyter" \
       author="rjstoneus@gmail.com" \
       maintainer="rjstoneus@gmail.com" \
       version="0.4.1"
+
+LABEL org.opencontainers.image.source="https://github.com/rjstone/devcontainers"
+LABEL org.opencontainers.image.description="This is primarily for use with tutorial Jupyter Notebooks. It is in the process of being refactored so that all these installs aren't in the same image."
