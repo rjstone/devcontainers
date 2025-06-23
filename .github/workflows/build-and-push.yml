@@ -1,14 +1,23 @@
 name: Build Tagged Dev Container and Push Image
 
+# This workflow looks for tags of the form:
+#     '<IMAGE_NAME>--<IMAGE_TAG>'
+# Example git tag: 'foobar-container--noble-1.23.42'
+# This then parases to building src/foobar-container and docker tags it
+# with 'noble-1.23.42' before pushing it to ghcr.
+# <anything>--<anything> should work as long as there are two dashes.
+# This way the whole repo of containers doesn't need to be built, and
+# confusion about which container the tags are for should be avoided.
+
 on:
   push:
     tags:
-      - "*-*"
+      - "*--*"
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: from-git-tag-see-below
-  IMAGE_TAG: from-git-tag-see-below
+  IMAGE_NAME: from-git-tag-see-info-above
+  IMAGE_TAG: from-git-tag-also-see-code-below
 
 jobs:
   build-and-push:
@@ -22,26 +31,24 @@ jobs:
 
     steps:
 
-    - name: Get dev container image name from tag (prefix)
-      id: imgname
+    - name: Extract dev container IMAGE_NAME (build target) from ref_name (git tag)
+      id: extract_image_name
       env:
         TAGSTR: ${{ github.ref_name }}
       run: echo "IMAGE_NAME=${TAGSTR%%--*}" >> $GITHUB_ENV
-      ### IMAGE_NAME: everything before first dash
 
-    - name: Get dev container image tag from tag (prefix)
-      id: imgtag
+    - name: Extract dev container IMAGE_TAG (container version) from ref_name (git tag)
+      id: extract_image_tag
       env:
         TAGSTR: ${{ github.ref_name }}
       run: echo "IMAGE_TAG=${TAGSTR#*--}" >> $GITHUB_ENV
-      ### IMAGE_TAG: greedy, everything after first -
 
     - name: Checkout Repository
       id: checkout
       uses: actions/checkout@v4
 
     - name: Login to GitHub Container Registry
-      id: logincr
+      id: login_ghcr
       uses: docker/login-action@v2
       with:
         registry: ${{ env.REGISTRY }}
@@ -49,8 +56,8 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Pre-build dev container image
-      id: imgbuild
-      uses: devcontainers/ci@v0.2
+      id: build-push
+      uses: devcontainers/ci@v0.3
       with:
         eventFilterForPush: "push"
         subFolder: src/${{ env.IMAGE_NAME }}
@@ -58,10 +65,15 @@ jobs:
         imageTag:  ${{ env.IMAGE_TAG }}
         push: always
 
-    - name: Generate artifact attestation
-      id: attest
-      uses: actions/attest-build-provenance@v2
-      with:
-        subject-name: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
-        subject-digest: ${{ env.IMAGE_TAG }}
-        push-to-registry: true
+    - name: Hash Retrieval Experiment
+      id: hash
+      run: docker images --digests --format "{{json .Digest}}"
+
+    # This won't work until devcontainers/ci can provide a digest
+    # - name: Generate artifact attestation
+    #   id: attest
+    #   uses: actions/attest-build-provenance@v2
+    #   with:
+    #     subject-name: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+    #     subject-digest: ${{ env.SHA }}
+    #     push-to-registry: true
