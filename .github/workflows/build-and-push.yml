@@ -26,14 +26,14 @@ jobs:
       id: imgname
       env:
         TAGSTR: ${{ github.ref_name }}
-      run: echo "IMAGE_NAME=${TAGSTR%%-*}" >> $GITHUB_ENV
+      run: echo "IMAGE_NAME=${TAGSTR%%--*}" >> $GITHUB_ENV
       ### IMAGE_NAME: everything before first dash
 
     - name: Get dev container image tag from tag (prefix)
       id: imgtag
       env:
         TAGSTR: ${{ github.ref_name }}
-      run: echo "IMAGE_TAG=${TAGSTR#*-}" >> $GITHUB_ENV
+      run: echo "IMAGE_TAG=${TAGSTR#*--}" >> $GITHUB_ENV
       ### IMAGE_TAG: greedy, everything after first -
 
     - name: Checkout Repository
